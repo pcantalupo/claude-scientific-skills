@@ -7,13 +7,13 @@ description: >
   in version-controlled, token-efficient markdown with embedded Mermaid diagrams as the
   source of truth, with clear pathways to downstream Python or AI-generated images.
   Includes full style guides (markdown + mermaid), 24 diagram type references, and
-  9 document templates ready to use.
+  10 document templates ready to use.
 allowed-tools: [Read, Write, Edit, Bash]
 license: Apache-2.0
 metadata:
   skill-author: Clayton Young / Superior Byte Works, LLC (@borealBytes)
   skill-source: https://github.com/SuperiorByteWorks-LLC/agent-project
-  skill-version: "1.0.0"
+  skill-version: "1.1.0"
   skill-contributors:
     - name: Clayton Young
       org: Superior Byte Works, LLC / @borealBytes
@@ -54,6 +54,7 @@ Use this skill when:
 - Generating **any output that will be version-controlled** — if it's going into git, it should be markdown
 - Working with **any other skill** — this skill defines the documentation layer that wraps every other output
 - Someone asks you to "add a diagram" or "visualize the relationship" — Mermaid first, always
+- Documenting **computational biology or bioinformatics projects** — scRNA-seq, bulk RNA-seq, spatial transcriptomics, metagenomics, or any iterative analysis workflow for a PI or collaborator
 
 Do NOT start with Python matplotlib, seaborn, or AI image generation for structural or relational diagrams.
 Those are Phase 2 and Phase 3 — only used when Mermaid cannot express what's needed (e.g., scatter plots with real data, photorealistic images).
@@ -153,9 +154,12 @@ Check if a template exists before writing from scratch:
 | Architecture decision (ADR) | `templates/decision_record.md` |
 | Presentation / briefing | `templates/presentation.md` |
 | Research paper / analysis | `templates/research_paper.md` |
-| Project documentation | `templates/project_documentation.md` |
+| Project documentation (software) | `templates/project_documentation.md` |
+| **Project documentation (compbio)** | **`templates/compbio_project_documentation.md`** |
 | How-to / tutorial | `templates/how_to_guide.md` |
 | Status report | `templates/status_report.md` |
+
+> 💡 **Choosing between project documentation templates:** Use `project_documentation.md` for software projects, R packages, APIs, and web applications. Use `compbio_project_documentation.md` for bioinformatics analysis projects (scRNA-seq, bulk RNA-seq, spatial transcriptomics, metagenomics, etc.) where the documentation serves as an analysis notebook recording iterative work performed for a PI or collaborator. The compbio template replaces software-centric sections (API Reference, Deployment, Quick Start) with analysis-centric sections (Script Reference, Manuscript/Data Submission, Experimental Design, Methods Comparison, Decision Log).
 
 ### Step 2: Read the style guide
 
@@ -188,6 +192,20 @@ accDescr: One or two sentences explaining what this diagram shows.
 - **No inline `style`** — use `classDef` only
 - **One emoji per node max** — at the start of the label
 - **`snake_case` node IDs** — match the label
+
+#### Mermaid diagram selection for computational biology
+
+When documenting compbio projects, these diagram types are most commonly needed:
+
+| What to diagram | Recommended type | Example |
+| --- | --- | --- |
+| Analysis pipeline / decision tree | Flowchart | QC --> clustering --> DE, with branch points where methods diverge |
+| Project chronology / milestones | Timeline | Multi-month project with iterative PI feedback |
+| Cell or read filtering cascade | Sankey | Cells entering QC steps, showing how many pass each filter |
+| Analysis dependencies | Flowchart or Gantt | Which downstream analyses depend on which upstream objects |
+| Methods comparison | Flowchart | Highlight selected method, gray out alternatives with `classDef` |
+| Sample / batch relationships | ER diagram or Flowchart | Complex experimental designs with multiple batches or conditions |
+| Parameter exploration | Quadrant | Comparing clustering resolutions or QC thresholds on two axes |
 
 ### Step 4: Write the document
 
@@ -307,9 +325,22 @@ Each file contains: production-quality exemplar, tips specific to that type, and
 
 `references/diagrams/` — architecture, block, c4, class, complex\_examples, er, flowchart, gantt, git\_graph, kanban, mindmap, packet, pie, quadrant, radar, requirement, sankey, sequence, state, timeline, treemap, user\_journey, xy\_chart, zenuml
 
-### Document templates (9 types)
+### Document templates (10 types)
 
-`templates/` — decision\_record, how\_to\_guide, issue, kanban, presentation, project\_documentation, pull\_request, research\_paper, status\_report
+`templates/` — compbio\_project\_documentation, decision\_record, how\_to\_guide, issue, kanban, presentation, project\_documentation, pull\_request, research\_paper, status\_report
+
+| Template | Use for |
+| --- | --- |
+| `compbio_project_documentation.md` | Bioinformatics analysis projects (scRNA-seq, RNA-seq, spatial, metagenomics) serving as analysis notebooks for PI-driven work |
+| `project_documentation.md` | Software projects, R packages, APIs, web applications |
+| `research_paper.md` | Data-driven analysis, literature reviews, methodology + findings |
+| `decision_record.md` | Recording why a decision was made (ADR/RFC) |
+| `how_to_guide.md` | Step-by-step instructions with prerequisites and troubleshooting |
+| `status_report.md` | Progress updates, risk summaries, decisions needed |
+| `presentation.md` | Slide-deck-style documents with speaker notes |
+| `pull_request.md` | PR documentation with change inventory and review notes |
+| `issue.md` | Bug reports and feature requests |
+| `kanban.md` | Sprint/release/project work tracking |
 
 ### Examples
 
