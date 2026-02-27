@@ -165,9 +165,9 @@ flowchart TB
     accTitle: Methods Comparison
     accDescr: [Description of the methods evaluated and which was selected]
 
-    input[📦 Input Data] --> m1[Method 1\nBrief description]
-    input --> m2[Method 2\nBrief description]
-    input --> m3[Method N\nSelected approach]
+    input[📦 Input Data] --> m1[Method 1<br/>Brief description]
+    input --> m2[Method 2<br/>Brief description]
+    input --> m3[Method N<br/>Selected approach]
 
     m3 --> downstream[Downstream Analyses]
 
@@ -189,8 +189,8 @@ flowchart TD
     accTitle: Primary Analysis Workflow
     accDescr: [Description of the end-to-end analysis workflow]
 
-    raw[📦 Raw Data\nPipeline output] --> qc[QC Filtering]
-    qc --> norm[Normalization\nand Scaling]
+    raw[📦 Raw Data<br/>Pipeline output] --> qc[QC Filtering]
+    qc --> norm[Normalization<br/>and Scaling]
     norm --> cluster[Clustering]
     cluster --> annot[Cell Type Annotation]
     annot --> downstream[Downstream Analyses]

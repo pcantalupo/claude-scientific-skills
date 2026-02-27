@@ -222,6 +222,9 @@ flowchart LR
 | Active voice          | `[🧪 Run tests]`           | `[Tests are run]`                   |
 | Sentence case         | `[Start pipeline]`         | `[Start Pipeline]`                  |
 | Edge labels 1–4 words | `-->                       | All green                           |     |`---> | All tests passed successfully |     |
+| `<br/>` for line breaks | `["Line 1<br/>Line 2"]` | `["Line 1\nLine 2"]` |
+
+> **Why `<br/>` not `\n`?** Pandoc, Positron, and many markdown renderers display `\n` as literal text in Mermaid node labels. `<br/>` works universally — in Mermaid's JS renderer, pandoc, and GitHub.
 
 ---
 

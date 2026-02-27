@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<!--
+  Source: Adapted from https://github.com/SuperiorByteWorks-LLC/agent-project
+  Original License: Apache-2.0
+  Original Author: Clayton Young / Superior Byte Works, LLC (Boreal Bytes)
+  Adapted for computational biology by Paul Cantalupo, University of Pittsburgh
+  Interactive HTML version with zoomable Mermaid diagrams (visual-explainer patterns)
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[Project Name] — Compbio Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME ============ */
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f0fdfa;
+    --surface: #ffffff;
+    --surface2: #e6f7f3;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #134e4a;
+    --text-dim: #5f8a85;
+
+    --primary: #0d9488;
+    --primary-dim: rgba(13, 148, 136, 0.08);
+    --secondary: #7c3aed;
+    --secondary-dim: rgba(124, 58, 237, 0.08);
+    --tertiary: #d97706;
+    --tertiary-dim: rgba(217, 119, 6, 0.08);
+    --danger: #dc2626;
+    --danger-dim: rgba(220, 38, 38, 0.08);
+    --green: #059669;
+    --green-dim: rgba(5, 150, 105, 0.1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #042f2e;
+      --surface: #0a3d3a;
+      --surface2: #115e59;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.14);
+      --text: #ccfbf1;
+      --text-dim: #5eead4;
+
+      --primary: #2dd4bf;
+      --primary-dim: rgba(45, 212, 191, 0.14);
+      --secondary: #c4b5fd;
+      --secondary-dim: rgba(196, 181, 253, 0.12);
+      --tertiary: #fbbf24;
+      --tertiary-dim: rgba(251, 191, 36, 0.12);
+      --danger: #f87171;
+      --danger-dim: rgba(248, 113, 113, 0.12);
+      --green: #34d399;
+      --green-dim: rgba(52, 211, 153, 0.12);
+    }
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px;
+    min-height: 100vh;
+    line-height: 1.7;
+    overflow-wrap: break-word;
+  }
+
+  /* ============ ANIMATION ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.06s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .mermaid-wrap .mermaid { transition: none; }
+  }
+
+  /* ============ LAYOUT ============ */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border-bright);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+
+  p, li {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 36px 0;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ============ TABLES ============ */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  .data-table tbody tr:nth-child(even) {
+    background: var(--primary-dim);
+  }
+
+  .data-table tbody tr {
+    transition: background 0.15s ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--border);
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table code {
+    font-size: 11px;
+  }
+
+  /* ============ CALLOUT ============ */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  .callout strong { color: var(--text); }
+
+  .callout code {
+    font-size: 11px;
+  }
+
+  /* ============ STATUS BADGES ============ */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .status--selected {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  .status--rejected {
+    background: var(--danger-dim);
+    color: var(--danger);
+  }
+
+  .status--exploratory {
+    background: var(--tertiary-dim);
+    color: var(--tertiary);
+  }
+
+  .status--current {
+    background: var(--primary-dim);
+    color: var(--primary);
+  }
+
+  /* ============ MERMAID CONTAINER ============ */
+  .mermaid-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 24px;
+    overflow: auto;
+    margin-bottom: 24px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .mermaid-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+  .mermaid-wrap::-webkit-scrollbar-track { background: transparent; }
+  .mermaid-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .mermaid-wrap::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  .mermaid-wrap .mermaid {
+    display: flex;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    transform-origin: top center;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 2px;
+    z-index: 10;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+  }
+
+  .zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .zoom-controls button:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .mermaid-wrap.is-zoomed { cursor: grab; }
+  .mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+
+  /* ============ MERMAID SVG OVERRIDES ============ */
+  .mermaid .nodeLabel {
+    font-family: var(--font-body) !important;
+    font-size: 16px !important;
+    color: var(--text) !important;
+  }
+
+  .mermaid .edgeLabel {
+    font-family: var(--font-mono) !important;
+    font-size: 13px !important;
+    color: var(--text-dim) !important;
+    background-color: var(--bg) !important;
+  }
+
+  .mermaid .edgeLabel rect {
+    fill: var(--bg) !important;
+  }
+
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node polygon {
+    stroke-width: 1.5px !important;
+  }
+
+  .mermaid .edge-pattern-solid {
+    stroke-width: 1.5px !important;
+  }
+
+  /* ============ COLLAPSIBLE ============ */
+  details.collapsible {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  details.collapsible summary {
+    padding: 14px 20px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+    transition: background 0.15s ease;
+  }
+
+  details.collapsible summary:hover {
+    background: var(--surface2);
+  }
+
+  details.collapsible summary::-webkit-details-marker { display: none; }
+
+  details.collapsible summary::before {
+    content: '\25B8';
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: transform 0.15s ease;
+  }
+
+  details.collapsible[open] summary::before {
+    transform: rotate(90deg);
+  }
+
+  details.collapsible .collapsible__body {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ============ DIRECTORY TREE ============ */
+  .dir-tree {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.8;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    white-space: pre;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    body { padding: 16px; }
+    h1 { font-size: 22px; }
+    .mermaid-wrap { padding: 16px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ====== HEADER ====== -->
+  <h1 class="animate" style="--i:0">[Project Name]</h1>
+  <p class="subtitle animate" style="--i:1">[organism] &middot; [technology] &middot; [biological question]</p>
+
+  <p class="animate" style="--i:2">
+    [One sentence: what organism, what technology, what biological question.
+    Example: "Single-cell RNA-seq analysis of mouse periodontal tissue comparing control, disease, and resolution conditions."]
+  </p>
+
+  <hr>
+
+  <!-- ====== PROJECT OVERVIEW ====== -->
+  <h2 class="animate" style="--i:3">Project overview</h2>
+
+  <p>[2-3 sentences describing the biological question, the approach, and the current status of the project (active, published, archived).]</p>
+
+  <h3>Key resources</h3>
+  <div class="table-wrap animate" style="--i:4">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Resource</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td>PI / Collaborator</td><td>[Name, department, institution]</td></tr>
+          <tr><td>Analyst(s)</td><td>[Names]</td></tr>
+          <tr><td>Lab notebook</td><td><a href="#">[URL]</a></td></tr>
+          <tr><td>GitHub repository</td><td><a href="#">[URL]</a></td></tr>
+          <tr><td>Publication</td><td>[DOI or "in preparation"]</td></tr>
+          <tr><td>Data accession</td><td>[GEO/SRA/dbGaP ID or "not yet submitted"]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== EXPERIMENTAL DESIGN ====== -->
+  <h2 class="animate" style="--i:5">Experimental design</h2>
+
+  <p>[1-2 sentences describing the experimental design: what conditions are being compared and why.]</p>
+
+  <h3>Sample table</h3>
+  <div class="table-wrap animate" style="--i:6">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>Sample ID</th><th>Condition</th><th>Replicate</th><th>Technology</th><th>Batch</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>[S1]</td><td>[Control]</td><td>1</td><td>[10X 3' v3]</td><td>[Batch1]</td><td></td></tr>
+          <tr><td>[S2]</td><td>[Control]</td><td>2</td><td>[10X 3' v3]</td><td>[Batch1]</td><td></td></tr>
+          <tr><td>[S3]</td><td>[Treatment]</td><td>1</td><td>[10X 3' v3]</td><td>[Batch2]</td><td>[e.g., low cell recovery]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== DATA PROCESSING ====== -->
+  <h2 class="animate" style="--i:7">Data processing</h2>
+
+  <h3>Analysis parameters</h3>
+  <div class="callout animate" style="--i:8">
+    <strong>Keep this table current.</strong> These are the parameters applied to the primary analysis.
+    If different parameters were tested, document them in the Methods comparison section.
+  </div>
+
+  <div class="table-wrap animate" style="--i:9">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Script / step</th></tr></thead>
+        <tbody>
+          <tr><td>Min cells per gene</td><td>[3]</td><td><code>seurat.R --mc 3</code></td></tr>
+          <tr><td>Min features per cell</td><td>[300]</td><td><code>seurat.R --minf 300</code></td></tr>
+          <tr><td>Max mito %</td><td>[10]</td><td><code>seurat.R --maxmito 10</code></td></tr>
+          <tr><td>Clustering resolution</td><td>[0.8]</td><td><code>FindClusters</code></td></tr>
+          <tr><td>DE test</td><td>[Wilcoxon]</td><td><code>FindMarkers</code></td></tr>
+          <tr><td>p-adj cutoff</td><td>[0.05]</td><td>Significance threshold</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== METHODS COMPARISON ====== -->
+  <h2 class="animate" style="--i:10">Methods comparison</h2>
+
+  <p>[1-2 sentences explaining why multiple methods were evaluated.]</p>
+
+  <div class="table-wrap animate" style="--i:11">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Method</th><th>Description</th><th>Run by</th><th>Outcome</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>[Method 1]</td><td>[Brief description]</td><td>[Name]</td><td>[Key finding]</td><td><span class="status status--rejected">Rejected</span></td></tr>
+          <tr><td>[Method 2]</td><td>[Brief description]</td><td>[Name]</td><td>[Key finding]</td><td><span class="status status--exploratory">Exploratory</span></td></tr>
+          <tr><td><strong>[Method N]</strong></td><td><strong>[Brief description]</strong></td><td><strong>[Name]</strong></td><td><strong>[Selected because...]</strong></td><td><span class="status status--selected">Selected</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap animate" style="--i:12">
+    <div class="zoom-controls">
+      <button onclick="zoomDiagram(this, 1.2)" title="Zoom in">+</button>
+      <button onclick="zoomDiagram(this, 0.8)" title="Zoom out">&minus;</button>
+      <button onclick="resetZoom(this)" title="Reset zoom">&#8634;</button>
+    </div>
+    <pre class="mermaid">
+      flowchart TB
+        accTitle: Methods Comparison
+        accDescr: Methods evaluated and which was selected
+
+        input["📦 Input Data"] --> m1["Method 1<br/>Brief description"]
+        input --> m2["Method 2<br/>Brief description"]
+        input --> m3["Method N<br/>Selected approach"]
+
+        m3 --> downstream["Downstream Analyses"]
+
+        classDef primary fill:#0d948833,stroke:#0d9488,stroke-width:2px
+        classDef secondary fill:#9ca3af11,stroke:#9ca3af,stroke-width:1px
+
+        class m3 primary
+        class m1,m2 secondary
+    </pre>
+  </div>
+
+  <hr>
+
+  <!-- ====== PRIMARY ANALYSIS PATH ====== -->
+  <h2 class="animate" style="--i:13">Primary analysis path</h2>
+
+  <p>[Describe the selected analysis workflow in detail. This is the core of the documentation.]</p>
+
+  <div class="mermaid-wrap animate" style="--i:14">
+    <div class="zoom-controls">
+      <button onclick="zoomDiagram(this, 1.2)" title="Zoom in">+</button>
+      <button onclick="zoomDiagram(this, 0.8)" title="Zoom out">&minus;</button>
+      <button onclick="resetZoom(this)" title="Reset zoom">&#8634;</button>
+    </div>
+    <pre class="mermaid">
+      flowchart TD
+        accTitle: Primary Analysis Workflow
+        accDescr: End-to-end analysis workflow
+
+        raw["📦 Raw Data<br/>Pipeline output"] --> qc["QC Filtering"]
+        qc --> norm["Normalization<br/>and Scaling"]
+        norm --> cluster["Clustering"]
+        cluster --> annot["Cell Type Annotation"]
+        annot --> downstream["Downstream Analyses"]
+
+        downstream --> de["Differential Expression"]
+        downstream --> markers["Marker Analysis"]
+        downstream --> other["Other Analyses"]
+    </pre>
+  </div>
+
+  <h3>Annotation</h3>
+  <div class="table-wrap animate" style="--i:15">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Step</th><th>Tool / method</th><th>Reference</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>[Automated prediction]</td><td>[e.g., SingleR, Azimuth]</td><td>[Reference dataset]</td><td></td></tr>
+          <tr><td>[Manual curation]</td><td>[PI review]</td><td>[Document reference]</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== DOWNSTREAM ANALYSES ====== -->
+  <h2 class="animate" style="--i:16">Downstream analyses</h2>
+
+  <h3>Marker analysis</h3>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Analysis</th><th>Idents / grouping</th><th>Parameters</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td>[Cluster markers]</td><td>[RNA_snn_res.0.8]</td><td>[Seurat defaults]</td><td><code>[path/]</code></td></tr>
+          <tr><td>[Celltype markers]</td><td>[celltype column]</td><td>[Specific cutoffs]</td><td><code>[path/]</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Differential expression</h3>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Analysis</th><th>Method</th><th>Grouping</th><th>Comparison</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td>[Pseudobulk DE]</td><td>[DESeq2]</td><td>[celltype]</td><td>[Condition A vs B]</td><td><code>[path/]</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== SCRIPT REFERENCE ====== -->
+  <h2 class="animate" style="--i:17">Script reference</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Script</th><th>Purpose</th><th>Key arguments</th><th>Input</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>[seurat.R]</code></td>
+            <td>[Main Seurat pipeline]</td>
+            <td><code>[--samplesheet, --outdir, QC params]</code></td>
+            <td>[Samplesheet + matrices]</td>
+            <td>[seurat.rds, plots]</td>
+          </tr>
+          <tr>
+            <td><code>[calculate_markers.R]</code></td>
+            <td>[Marker identification]</td>
+            <td><code>[--seuratrds, --idents]</code></td>
+            <td>[seurat.rds]</td>
+            <td>[markers.xlsx, heatmaps]</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <details class="collapsible">
+    <summary>Deprecated scripts</summary>
+    <div class="collapsible__body">
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Script</th><th>Replaced by</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>[old_script.R]</code></td><td><code>[new_script.R]</code></td><td>[Why it was replaced]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <hr>
+
+  <!-- ====== OUTPUT INVENTORY ====== -->
+  <h2 class="animate" style="--i:18">Output inventory</h2>
+
+  <h3>Directory structure</h3>
+  <div class="dir-tree">[project_name]/
+├── [raw_data_dir]/          # Pipeline output, not modified
+├── [analysis_dir]/
+│   ├── [method_or_step]/
+│   │   ├── rds/             # Serialized data objects
+│   │   ├── plots/           # Generated figures
+│   │   ├── outs/            # Tabular outputs (xlsx, tsv)
+│   │   ├── logs/            # Script logs
+│   │   └── deprecated/      # Superseded analyses
+│   └── scripts/             # Shared analysis scripts
+├── [manuscript_dir]/        # Drafts and submission materials
+├── doc/                     # PI-provided documents
+└── README.md</div>
+
+  <hr>
+
+  <!-- ====== DECISION LOG ====== -->
+  <h2 class="animate" style="--i:19">Decision log</h2>
+
+  <div class="callout">
+    <strong>This is a living section.</strong> Update it as decisions are made.
+    Each entry should capture when, what was decided, by whom, and why.
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Decision</th><th>Decided by</th><th>Context / rationale</th></tr></thead>
+        <tbody>
+          <tr><td>[YYYY-MM-DD]</td><td>[What was decided]</td><td>[PI / Analyst]</td><td>[Why]</td></tr>
+          <tr><td>[YYYY-MM-DD]</td><td>[What was deprecated]</td><td>[Who]</td><td>[Why the previous approach was abandoned]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== ENVIRONMENT ====== -->
+  <h2 class="animate" style="--i:20">Environment</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Item</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>R version</td><td>[e.g., 4.3.1]</td></tr>
+          <tr><td>Seurat version</td><td>[e.g., 4.4.0]</td></tr>
+          <tr><td>Bioconductor version</td><td>[e.g., 3.18]</td></tr>
+          <tr><td>Compute environment</td><td>[e.g., local Mac, HTC cluster]</td></tr>
+          <tr><td>Pipeline version</td><td>[e.g., CellRanger 7.1.0]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ====== TIMELINE ====== -->
+  <h2 class="animate" style="--i:21">Project timeline</h2>
+
+  <div class="mermaid-wrap animate" style="--i:22">
+    <div class="zoom-controls">
+      <button onclick="zoomDiagram(this, 1.2)" title="Zoom in">+</button>
+      <button onclick="zoomDiagram(this, 0.8)" title="Zoom out">&minus;</button>
+      <button onclick="resetZoom(this)" title="Reset zoom">&#8634;</button>
+    </div>
+    <pre class="mermaid">
+      timeline
+        accTitle: Project Timeline
+        accDescr: Chronological overview of major project milestones
+
+        section Year 1
+          Month range : Milestone 1
+                      : Milestone 2
+          Month range : Milestone 3
+
+        section Year 2
+          Month range : Milestone 4
+                      : Milestone 5
+    </pre>
+  </div>
+
+  <hr>
+
+  <!-- ====== FOOTER ====== -->
+  <p class="subtitle animate" style="--i:23">
+    Last updated: [Date] &middot; Analyst: [Name] &middot; Institution: [Institution]
+  </p>
+
+</div>
+
+<!-- ====== MERMAID (CDN) ====== -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  import elkLayouts from 'https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk/dist/mermaid-layout-elk.esm.min.mjs';
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  mermaid.registerLayoutLoaders(elkLayouts);
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    look: 'classic',
+    layout: 'elk',
+    themeVariables: {
+      primaryColor: isDark ? '#115e59' : '#ccfbf1',
+      primaryBorderColor: isDark ? '#2dd4bf' : '#0d9488',
+      primaryTextColor: isDark ? '#ccfbf1' : '#134e4a',
+      secondaryColor: isDark ? '#1e1b4b' : '#ede9fe',
+      secondaryBorderColor: isDark ? '#c4b5fd' : '#7c3aed',
+      secondaryTextColor: isDark ? '#ccfbf1' : '#134e4a',
+      tertiaryColor: isDark ? '#2e2618' : '#fffbeb',
+      tertiaryBorderColor: isDark ? '#fbbf24' : '#d97706',
+      tertiaryTextColor: isDark ? '#ccfbf1' : '#134e4a',
+      lineColor: isDark ? '#5eead4' : '#5f8a85',
+      fontSize: '16px',
+      fontFamily: "'Bricolage Grotesque', system-ui, sans-serif",
+      noteBkgColor: isDark ? '#115e59' : '#fefce8',
+      noteTextColor: isDark ? '#ccfbf1' : '#134e4a',
+      noteBorderColor: isDark ? '#fbbf24' : '#d97706',
+    }
+  });
+</script>
+
+<!-- ====== ZOOM CONTROLS (JS) ====== -->
+<script>
+  function updateZoomState(wrap) {
+    var target = wrap.querySelector('.mermaid');
+    var zoom = parseFloat(target.dataset.zoom || '1');
+    wrap.classList.toggle('is-zoomed', zoom > 1);
+  }
+
+  function zoomDiagram(btn, factor) {
+    var wrap = btn.closest('.mermaid-wrap');
+    var target = wrap.querySelector('.mermaid');
+    var current = parseFloat(target.dataset.zoom || '1');
+    var next = Math.min(Math.max(current * factor, 0.3), 5);
+    target.dataset.zoom = next;
+    target.style.transform = 'scale(' + next + ')';
+    updateZoomState(wrap);
+  }
+
+  function resetZoom(btn) {
+    var wrap = btn.closest('.mermaid-wrap');
+    var target = wrap.querySelector('.mermaid');
+    target.dataset.zoom = '1';
+    target.style.transform = 'scale(1)';
+    updateZoomState(wrap);
+  }
+
+  document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+    // Ctrl/Cmd + scroll to zoom
+    wrap.addEventListener('wheel', function(e) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      var target = wrap.querySelector('.mermaid');
+      var current = parseFloat(target.dataset.zoom || '1');
+      var factor = e.deltaY < 0 ? 1.1 : 0.9;
+      var next = Math.min(Math.max(current * factor, 0.3), 5);
+      target.dataset.zoom = next;
+      target.style.transform = 'scale(' + next + ')';
+      updateZoomState(wrap);
+    }, { passive: false });
+
+    // Click-and-drag to pan when zoomed
+    var startX, startY, scrollL, scrollT;
+    wrap.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.zoom-controls')) return;
+      var target = wrap.querySelector('.mermaid');
+      if (parseFloat(target.dataset.zoom || '1') <= 1) return;
+      wrap.classList.add('is-panning');
+      startX = e.clientX;
+      startY = e.clientY;
+      scrollL = wrap.scrollLeft;
+      scrollT = wrap.scrollTop;
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!wrap.classList.contains('is-panning')) return;
+      wrap.scrollLeft = scrollL - (e.clientX - startX);
+      wrap.scrollTop = scrollT - (e.clientY - startY);
+    });
+    window.addEventListener('mouseup', function() {
+      wrap.classList.remove('is-panning');
+    });
+  });
+</script>
+
+</body>
+</html>

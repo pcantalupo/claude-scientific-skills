@@ -156,6 +156,7 @@ Check if a template exists before writing from scratch:
 | Research paper / analysis | `templates/research_paper.md` |
 | Project documentation (software) | `templates/project_documentation.md` |
 | **Project documentation (compbio)** | **`templates/compbio_project_documentation.md`** |
+| **Project documentation (compbio, interactive HTML)** | **`templates/compbio_project_documentation.html`** |
 | How-to / tutorial | `templates/how_to_guide.md` |
 | Status report | `templates/status_report.md` |
 
@@ -192,6 +193,7 @@ accDescr: One or two sentences explaining what this diagram shows.
 - **No inline `style`** — use `classDef` only
 - **One emoji per node max** — at the start of the label
 - **`snake_case` node IDs** — match the label
+- **`<br/>` for line breaks in labels** — never `\n` (renders as literal text in pandoc/Positron)
 
 #### Mermaid diagram selection for computational biology
 
@@ -207,13 +209,25 @@ When documenting compbio projects, these diagram types are most commonly needed:
 | Sample / batch relationships | ER diagram or Flowchart | Complex experimental designs with multiple batches or conditions |
 | Parameter exploration | Quadrant | Comparing clustering resolutions or QC thresholds on two axes |
 
-### Step 4: Write the document
+### Step 4: Choose output format
+
+**Markdown (`.md`)** — the default. Use for all version-controlled documentation. Mermaid fenced blocks render natively on GitHub, GitLab, VS Code, and Positron. This is the source of truth.
+
+**Self-contained HTML (`.html`)** — use when the user needs interactive Mermaid diagrams with zoom/pan, styled tables, dark/light theme support, or a polished presentation-ready page. The HTML template generates a single file with Mermaid loaded via CDN, zoom controls (+/−/reset, Ctrl/Cmd+scroll, drag-to-pan), and beautiful typography. No pandoc conversion needed — the HTML is written directly.
+
+For compbio projects, both formats are available:
+- `templates/compbio_project_documentation.md` — markdown source of truth
+- `templates/compbio_project_documentation.html` — interactive HTML with zoomable Mermaid diagrams
+
+When the user asks for HTML output or says diagrams aren't zoomable/interactive, use the HTML template. Read it before generating to absorb the patterns (theming, zoom controls, table styling, collapsible sections).
+
+### Step 5: Write the document
 
 Start from the template. Apply the markdown style guide. Place diagrams inline with related text — not in a separate "Figures" section.
 
-### Step 5: Commit as text
+### Step 6: Commit as text
 
-The `.md` file with embedded Mermaid is what gets committed. If you also generated a PNG or AI image, those are supplementary — the markdown is the source.
+The `.md` file with embedded Mermaid is what gets committed. If you also generated an HTML page or AI image, those are supplementary — the markdown is the source.
 
 ---
 
@@ -332,6 +346,7 @@ Each file contains: production-quality exemplar, tips specific to that type, and
 | Template | Use for |
 | --- | --- |
 | `compbio_project_documentation.md` | Bioinformatics analysis projects (scRNA-seq, RNA-seq, spatial, metagenomics) serving as analysis notebooks for PI-driven work |
+| `compbio_project_documentation.html` | Same as above but as self-contained interactive HTML with zoomable Mermaid diagrams, styled tables, and dark/light theme |
 | `project_documentation.md` | Software projects, R packages, APIs, web applications |
 | `research_paper.md` | Data-driven analysis, literature reviews, methodology + findings |
 | `decision_record.md` | Recording why a decision was made (ADR/RFC) |
